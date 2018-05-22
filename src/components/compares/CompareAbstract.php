@@ -3,7 +3,13 @@ namespace deflou\components\compares;
 
 use deflou\interfaces\ICompare;
 
-class CompareAbstract implements ICompare
+/**
+ * Class CompareAbstract
+ *
+ * @package deflou\components\compares
+ * @author deflou.dev@gmail.com
+ */
+abstract class CompareAbstract implements ICompare
 {
 
 }

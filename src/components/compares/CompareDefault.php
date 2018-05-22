@@ -1,5 +1,13 @@
 <?php
 namespace deflou\components\compares;
+use deflou\components\compares\defaults\DefaultEqual;
+use deflou\components\compares\defaults\DefaultGreater;
+use deflou\components\compares\defaults\DefaultGreaterOrEqual;
+use deflou\components\compares\defaults\DefaultLike;
+use deflou\components\compares\defaults\DefaultLower;
+use deflou\components\compares\defaults\DefaultLowerOrEqual;
+use deflou\components\compares\defaults\DefaultNotEqual;
+use deflou\interfaces\ICompare;
 
 /**
  * Class CompareDefault
@@ -19,52 +27,29 @@ class CompareDefault extends CompareAbstract
     public function compare($first, $second, $clause = '')
     {
         $clauses = [
-            static::GREATER => function ($first, $second) {
-                if (is_numeric($first)) {
-                    return $first > $second;
-                }
-
-                $cmp = strcasecmp($first, $second);
-
-                return $cmp > 0;
-            },
-            static::LOWER => function ($first, $second) {
-                if (is_numeric($first)) {
-                    return $first < $second;
-                }
-
-                $cmp = strcasecmp($first, $second);
-
-                return $cmp < 0;
-            },
-            static::EQUAL => function ($first, $second) {
-
-                if (is_numeric($first)) {
-                    $result = ($first == $second);
-                } else {
-                    $cmp = strcmp(strtolower($first), strtolower($second));
-                    $result = $cmp ? false : true;
-                }
-
-                return $result;
-            },
-            static::NOT_EQUAL => function ($first, $second) {
-                if (is_numeric($first)) {
-                    $result = ($first != $second);
-                } else {
-                    $cmp = strcmp(strtolower($first), strtolower($second));
-                    $result = $cmp ? true : false;
-                }
-
-                return $result;
-            },
-            static::LIKE => function ($first, $second) {
-                return stripos($first, $second) !== false;
-            }
+            '=' => DefaultEqual::class,
+            'eq' => DefaultEqual::class,
+            '!=' => DefaultNotEqual::class,
+            'neq' => DefaultNotEqual::class,
+            '>' => DefaultGreater::class,
+            'gt' => DefaultGreater::class,
+            '>=' => DefaultGreaterOrEqual::class,
+            'gte' => DefaultGreaterOrEqual::class,
+            '<' => DefaultLower::class,
+            'lt' => DefaultLower::class,
+            '<=' => DefaultLowerOrEqual::class,
+            'lte' => DefaultLowerOrEqual::class,
+            'like' => DefaultLike::class
         ];
 
         if (isset($clauses[$clause])) {
-            return $clauses[$clause]($first, $second);
+            $compareClass = $clauses[$clause];
+
+            /**
+             * @var $compare ICompare
+             */
+            $compare = new $compareClass();
+            return $compare->compare($first, $second, $clause);
         }
 
         return null;
